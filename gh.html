@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TRIV - Memproses...</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;}
+        body{min-height:100vh;overflow:hidden;position:relative;background:linear-gradient(135deg,#051020 0%,#0a2040 50%,#051530 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 30px;}
+
+        /* Gelombang berputar berkilau */
+        .wave{position:absolute;width:220%;height:220%;background:radial-gradient(ellipse at center,rgba(60,160,255,.12) 0%,transparent 70%);animation:waveRotate 8s linear infinite;}
+        .wave:nth-child(2){animation-delay:-2s;opacity:.6;animation-duration:10s;}
+        .wave:nth-child(3){animation-delay:-4s;opacity:.4;animation-duration:12s;}
+        @keyframes waveRotate{0%{transform:rotate(0deg) scale(1.1);}100%{transform:rotate(360deg) scale(1.25);}}
+
+        /* Partikel berkilau */
+        .sparkle{position:absolute;width:6px;height:6px;background:#B0E0FF;border-radius:50%;box-shadow:0 0 10px #80D0FF,0 0 20px #40A0FF;animation:sparkle 2s ease-in-out infinite;}
+        @keyframes sparkle{0%,100%{opacity:0;transform:scale(.5);}50%{opacity:1;transform:scale(1.2);}}
+
+        .logo{font-size:2.5rem;font-weight:600;color:#90D8FF;margin-bottom:50px;text-shadow:0 0 15px rgba(100,200,255,.5);position:relative;z-index:10;}
+
+        /* Lingkaran berputar bertingkat */
+        .loader-ring{position:relative;width:160px;height:160px;margin-bottom:40px;}
+        .ring{position:absolute;width:100%;height:100%;border-radius:50%;border:4px solid transparent;}
+        .ring-outer{border-top-color:#40B0FF;border-right-color:#40B0FF;animation:spin 2s linear infinite;}
+        .ring-middle{width:130px;height:130px;top:15px;left:15px;border-bottom-color:#60C0FF;border-left-color:#60C0FF;animation:spin 2.5s linear infinite reverse;opacity:.8;}
+        .ring-inner{width:100px;height:100px;top:30px;left:30px;border-top-color:#90D8FF;border-right-color:#90D8FF;animation:spin 3s linear infinite;opacity:.6;}
+        @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+
+        /* Waktu tampilan */
+        .time-display{font-size:3rem;font-weight:700;color:#fff;letter-spacing:2px;text-shadow:0 0 20px rgba(64,176,255,.6);margin-bottom:15px;position:relative;z-index:10;}
+        .time-label{color:#90B8E0;font-size:.95rem;margin-bottom:40px;position:relative;z-index:10;}
+
+        /* Bilah kemajuan */
+        .progress-bar{width:100%;max-width:280px;height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin-bottom:20px;position:relative;z-index:10;}
+        .progress-fill{height:100%;background:linear-gradient(90deg,#4090FF,#60C0FF,#90D8FF);border-radius:4px;width:0;transition:width 1s linear;box-shadow:0 0 10px rgba(64,176,255,.5);}
+
+        .status-text{color:#B0D8FF;font-size:.9rem;text-align:center;position:relative;z-index:10;}
+    </style>
+</head>
+<body>
+    <!-- Gelombang berputar -->
+    <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+
+    <div class="logo">triv</div>
+
+    <div class="loader-ring">
+        <div class="ring ring-outer"></div>
+        <div class="ring ring-middle"></div>
+        <div class="ring ring-inner"></div>
+    </div>
+
+    <div class="time-display" id="timeDisplay">59:00</div>
+    <p class="time-label">Sedang memproses data...</p>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <p class="status-text" id="statusText">Menghubungkan ke server...</p>
+
+    <script>
+        // Buat partikel berkilau acak
+        for(let i=0;i<25;i++){
+            const p=document.createElement('div');
+            p.className='sparkle';
+            p.style.left=Math.random()*100+'%';
+            p.style.top=Math.random()*100+'%';
+            p.style.animationDelay=Math.random()*2+'s';
+            p.style.animationDuration=(1.5+Math.random()*2)+'s';
+            document.body.appendChild(p);
+        }
+
+        // Hitung mundur 59:00 menit
+        let totalDetik=59*60;
+        const totalAwal=totalDetik;
+        const tampilWaktu=document.getElementById('timeDisplay');
+        const isianBar=document.getElementById('progressFill');
+        const teksStatus=document.getElementById('statusText');
+
+        const statusPesan=[
+            {detik:3500,teks:'Memverifikasi identitas...'},
+            {detik:2800,teks:'Mengamankan koneksi...'},
+            {detik:2000,teks:'Memproses data akun...'},
+            {detik:1200,teks:'Menghubungkan ke sistem...'},
+            {detik:600,teks:'Hampir selesai...'},
+            {detik:60,teks:'Menyelesaikan proses...'},
+            {detik:10,teks:'Siap...'}
+        ];
+
+        const hitung=setInterval(()=>{
+            totalDetik--;
+            if(totalDetik<0){
+                clearInterval(hitung);
+                tampilWaktu.textContent='Selesai!';
+                teksStatus.textContent='Pengalihan ke halaman berikutnya...';
+                // window.location.href='selesai.html'; // Hapus // untuk pindah
+                return;
+            }
+
+            const m=Math.floor(totalDetik/60);
+            const d=totalDetik%60;
+            tampilWaktu.textContent=`${m.toString().padStart(2,'0')}:${d.toString().padStart(2,'0')}`;
+
+            const persen=((totalAwal-totalDetik)/totalAwal)*100;
+            isianBar.style.width=persen+'%';
+
+            for(const p of statusPesan){
+                if(totalDetik<=p.detik){
+                    teksStatus.textContent=p.teks;
+                    break;
+                }
+            }
+        },1000);
+    </script>
+</body>
+</html>
